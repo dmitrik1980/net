@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mindworks", "Mindworks\Mindworks.csproj", "{45830D0A-94CF-4301-807C-5DAECD015086}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mindworks.Tests", "Mindworks.Tests\Mindworks.Tests.csproj", "{01411EAF-EA3B-49EA-8D85-57BB992D9099}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{45830D0A-94CF-4301-807C-5DAECD015086}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45830D0A-94CF-4301-807C-5DAECD015086}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45830D0A-94CF-4301-807C-5DAECD015086}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45830D0A-94CF-4301-807C-5DAECD015086}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01411EAF-EA3B-49EA-8D85-57BB992D9099}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01411EAF-EA3B-49EA-8D85-57BB992D9099}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01411EAF-EA3B-49EA-8D85-57BB992D9099}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01411EAF-EA3B-49EA-8D85-57BB992D9099}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {13674164-9C6A-4534-8DDF-AF2BB1E1D611}
+	EndGlobalSection
+EndGlobal

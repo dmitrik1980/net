@@ -1,0 +1,187 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="Origin" content="www.webserviceX.NET">
+    <title>Weather Service</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <style>
+        .center {
+            text-align: center;
+        }
+        article {
+            min-width: 400px;
+            overflow: auto;
+        }
+        div {
+            width: 80%;
+            min-width: 300px;
+            display: inline-block;
+        }
+        #country {
+            margin: 0;
+            padding: 0;
+            width: 78%;
+            min-width: 250px;
+            float: left;
+        }
+        #ok {
+            margin: 0;
+            padding: 0;
+            width: 20%;
+            min-width: 50px;
+            float: right;
+        }
+        #cities {
+            width: 100%;
+        }
+        #message {
+            margin-top: 10px;
+            padding: 10px 0 10px 0;
+            border: 3px solid lightgrey;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function formatLocation(location) {
+            return (location.City + '(' + location.Country + ')');
+        }
+
+        var previous = {
+            get: function (key) {
+                try {
+                    return window.localStorage.getItem(key);
+                } catch (err) {
+                    return;
+                }
+            },
+            set: function (key, value) {
+                try {
+                    return window.localStorage.setItem(key, value);
+                } catch (err) {
+                    return;
+                }
+            }
+        }
+
+        function GetService(service, parameters, callback) {
+            $.post('http://webservicex.net/globalweather.asmx/' + service, parameters,
+                function (data, status, jqXhr) {
+                    // This is our 'fix' because service delivers Xml with content as string.
+                    if (status !== 'success') {
+                        setMessage('Webservice call failed.', true);
+                    }
+                    else {
+                        try {
+                            var xml = ($.parseXML(data.firstChild.textContent)).firstElementChild;
+                            var dataset = (xml) ? nodeToObject(xml) : null;	// parse string as new XML, skip NewDataSet
+                            callback(dataset, status, jqXhr);
+                        }
+                        catch (err) {
+                            setMessage('Error parsing response: ' + err.name + '\n' + err.message, true);
+                        }
+                    }
+                }, 'xml')
+                .fail(function (jqXhr, status, message) {
+                    setMessage('Request failed: "' + status + '", message: "' + message + '"', true);
+                });
+        }
+        function nodeToObject(node) {
+            if (0 == node.childElementCount) {
+                return node.textContent;
+            } else {
+                var result = {};
+                $(node.children).each(function (i, elem) {
+                    if (result.hasOwnProperty(elem.tagName)) {
+                        var value = result[elem.tagName];
+                        if (Array.isArray(value)) {
+                            value.push(nodeToObject(elem))
+                        } else {
+                            result[elem.tagName] = [value, nodeToObject(elem)];
+                        }
+                    } else {
+                        result[elem.tagName] = nodeToObject(elem);
+                    }
+                });
+                return result;
+            }
+        };
+
+        function setCities(country) {
+            GetService('GetCitiesByCountry', { CountryName: country },
+            function (dataset, status, jqXhr) {
+                if (!dataset) {
+                    setMessage('No cities found for ' + country, true);
+                }
+                else {
+                    var sel = $('#cities');
+                    sel.empty();
+                    sel.append($('<option></option>').val('').html('Please select'));
+                    $.each(dataset.Table, function (i, loc) {
+                        sel.append($('<option></option>').val(loc.Country + '#' + loc.City).html(formatLocation(loc)));
+                    });
+                    sel.val(previous.get('city'));
+                    setMessage('Please one of ' + dataset.Table.length + ' place(s) in ' + country);
+                }
+            });
+        }
+        function setWeather(location) {
+            GetService('GetWeather ', { CountryName: location.Country, CityName: location.City },
+            function (dataset, status, jqXhr) {
+                // TODO: Once service provides any response
+                if (dataset && dataset.Table) {
+                    setMessage('The weather today in ' + formatLocation(location) + ' is ' + dataset.Table.SkyConditions + ', ' + dataset.Table.Temperature);
+                } else {
+                    setMessage('No weather data available for ' + formatLocation(location), true);
+                }
+            },
+            'xml');
+        }
+        function setMessage(message, error) {
+            $('#message').text(message).css('background-color', error ? 'pink' : 'lightgreen')
+        }
+
+        $(document).ready(function () {
+            $('#ok').click(
+            function () {
+                var country = $('#country').val();
+                previous.set('country', country);
+                setCities(country);
+            });
+
+            var restore = previous.get('country');
+            if (restore) {
+                $('#country').val(restore);
+                setCities(restore);
+            }
+
+            $('#cities').change(function () {
+                var city = $('#cities').val();
+                previous.set('city', city);
+                var citySpit = city.split('#');
+                setWeather({ Country: citySpit[0], City: citySpit[1] });
+            });
+        });
+    </script>
+
+    <section class="center">
+        <header>
+            <h1>Weather</h1>
+            <div>
+                I am not sure, this is running other than SOAP, so need to request JSON from there.
+            </div>
+            <div>
+                Please verify that weather service at http://webservicex.net/globalweather.asmx/ is working, by running the WPF version first.
+            </div>
+        </header>
+        <article>
+            <div><input id="country" placeholder="Country" /><input type="button" id="ok" value="OK"></div>
+            <div><select id="cities"></select></div>
+            <div id="message">The weather today in &lt;Location&gt; is &lt;SkyConditions&gt;, &lt;Temperature&gt;</div>
+        </article>
+    </section>
+</body>
+</html>
